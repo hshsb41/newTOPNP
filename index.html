@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0e14">
+<title>CKRPRO TOPUP | Free Fire Diamonds</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --bg: #0b0e14;
+    --surface: #141922;
+    --surface-2: #1b212d;
+    --text: #f3f5f9;
+    --muted: #7f889a;
+    --accent: #2f7bff;
+    --accent-press: #2467dd;
+    --ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    padding: 26px 14px 110px;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+/* ---------- Sections ---------- */
+.section {
+    margin-bottom: 22px;
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity .8s var(--ease), transform .8s var(--ease);
+}
+
+.section.show { opacity: 1; transform: translateY(0); }
+
+.section-title {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 4px 9px;
+}
+
+.card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 8px;
+    overflow: hidden;
+}
+
+.price-image,
+.qr-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 11px;
+    background: var(--surface-2);
+}
+
+.qr-image { max-width: 240px; margin: 2px auto 0; }
+
+.reveal-img {
+    opacity: 0;
+    filter: blur(12px);
+    transform: scale(.96);
+    transition: opacity .9s var(--ease) .15s, filter .9s var(--ease) .15s, transform .9s var(--ease) .15s;
+}
+
+.section.show .reveal-img { opacity: 1; filter: blur(0); transform: scale(1); }
+
+.payment-note {
+    color: var(--muted);
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    line-height: 1.8;
+    text-transform: uppercase;
+    padding: 12px 6px 6px;
+}
+
+/* ---------- Composer (message + buy now) ---------- */
+.composer-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 22px 14px calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--bg) 65%, rgba(11, 14, 20, 0));
+    z-index: 10;
+    transform: translateY(130%);
+    animation: slideUp .9s var(--ease) 1.5s forwards;
+}
+
+@keyframes slideUp { to { transform: translateY(0); } }
+
+.composer {
+    max-width: 420px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    background: var(--surface);
+    border-radius: 18px;
+    padding: 7px;
+    transition: background .3s ease;
+}
+
+.composer:focus-within { background: var(--surface-2); }
+
+textarea {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    max-height: 120px;
+    resize: none;
+    background: transparent;
+    color: var(--text);
+    border: none;
+    outline: none;
+    padding: 10px 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 18px;
+    caret-color: var(--accent);
+}
+
+textarea::placeholder {
+    color: #667085;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.buy {
+    position: relative;
+    flex-shrink: 0;
+    height: 38px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #fff;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    overflow: hidden;
+    transition: background .25s ease, transform .25s var(--ease);
+}
+
+.buy:hover { background: var(--accent-press); }
+.buy:active { transform: scale(.95); }
+
+.buy .label {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    transition: opacity .25s ease, transform .35s var(--ease);
+}
+
+.buy .fill {
+    position: absolute;
+    inset: 0;
+    background: var(--accent-press);
+    transform: scaleX(0);
+    transform-origin: left;
+    z-index: 1;
+}
+
+.buy.loading .fill { animation: fillbar .9s var(--ease) forwards; }
+
+.buy .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .28);
+    transform: scale(0);
+    animation: ripple .7s ease-out forwards;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes ripple { to { transform: scale(4); opacity: 0; } }
+@keyframes fillbar { to { transform: scaleX(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-delay: 0s !important;
+        transition-duration: .01ms !important;
+    }
+    .section, .reveal-img { opacity: 1 !important; transform: none !important; filter: none !important; }
+    .composer-wrap { transform: none !important; }
+}
+</style>
+</head>
+
+<body>
+<main class="container">
+
+    <section class="section">
+        <h2 class="section-title">Diamond price list</h2>
+        <div class="card">
+            <img class="price-image reveal-img"
+                 src="https://i.ibb.co/gbZJ49SS/file-00000000e64c82089cb89dbe14b713eb.png"
+                 alt="CKRPRO Free Fire Diamond Topup Price List"
+                 loading="eager">
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Payment QR</h2>
+        <div class="card">
+            <img class="qr-image reveal-img"
+                 src="https://i.ibb.co/xtkSDp54/qr.jpg"
+                 alt="CKRPRO Payment QR Code"
+                 loading="lazy">
+            <p class="payment-note">
+                Scan the QR to pay<br>
+                Send payment screenshot on WhatsApp
+            </p>
+        </div>
+    </section>
+
+</main>
+
+<div class="composer-wrap">
+    <div class="composer">
+        <textarea id="message" rows="1" aria-label="Type your message"
+            placeholder="Type your UID, package &amp; message"></textarea>
+        <button class="buy" id="buyBtn" type="button">
+            <span class="fill"></span>
+            <span class="label" id="buyLabel">Buy now</span>
+        </button>
+    </div>
+</div>
+
+<script>
+const WHATSAPP_NUMBER = "9779840825493";
+const GREETING = "Hello CKRPRO TOPUP!\nI want to buy Free Fire diamonds.";
+
+/* ---------- Sounds (Web Audio, no files) ---------- */
+const Sound = (() => {
+    let ctx = null;
+
+    function ensure() {
+        if (!ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+            ctx = new AC();
+        }
+        if (ctx.state === "suspended") ctx.resume();
+        return ctx;
+    }
+
+    function tone(freq, start, dur, type, vol) {
+        const c = ensure();
+        if (!c) return;
+        const t = c.currentTime + start;
+        const o = c.createOscillator();
+        const g = c.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, t);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g).connect(c.destination);
+        o.start(t);
+        o.stop(t + dur + 0.05);
+    }
+
+    return {
+        unlock: ensure,
+        welcome() {
+            tone(523.25, 0.00, 0.35, "sine", 0.45);
+            tone(659.25, 0.12, 0.35, "sine", 0.45);
+            tone(783.99, 0.24, 0.55, "sine", 0.45);
+        },
+        pop() { tone(740, 0, 0.14, "triangle", 0.3); },
+        tap() { tone(520, 0, 0.09, "triangle", 0.35); },
+        key() { tone(900, 0, 0.04, "square", 0.08); },
+        buy() {
+            tone(587.33, 0.00, 0.25, "triangle", 0.55);
+            tone(783.99, 0.10, 0.25, "triangle", 0.55);
+            tone(987.77, 0.20, 0.45, "triangle", 0.55);
+        }
+    };
+})();
+
+/* Browsers block sound until the first touch */
+let welcomed = false;
+function firstInteraction() {
+    if (welcomed) return;
+    welcomed = true;
+    Sound.unlock();
+    Sound.welcome();
+}
+["pointerdown", "touchstart", "keydown", "scroll"].forEach((ev) =>
+    window.addEventListener(ev, firstInteraction, { once: true, passive: true })
+);
+
+/* ---------- Scroll reveal ---------- */
+(function () {
+    const items = document.querySelectorAll(".section");
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+            if (e.isIntersecting) {
+                e.target.classList.add("show");
+                Sound.pop();
+                io.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    items.forEach((s, i) => {
+        s.style.transitionDelay = (1.0 + i * 0.18) + "s";
+        io.observe(s);
+        setTimeout(() => { s.style.transitionDelay = "0s"; }, 3000);
+    });
+})();
+
+/* ---------- Message box ---------- */
+const box = document.getElementById("message");
+
+function autoGrow() {
+    box.style.height = "38px";
+    box.style.height = Math.min(120, Math.max(38, box.scrollHeight)) + "px";
+}
+box.addEventListener("input", () => { autoGrow(); Sound.key(); });
+box.addEventListener("focus", () => Sound.tap());
+
+/* ---------- Buy now -> WhatsApp ---------- */
+const buyBtn = document.getElementById("buyBtn");
+const buyLabel = document.getElementById("buyLabel");
+let busy = false;
+
+buyBtn.addEventListener("click", (e) => {
+    if (busy) return;
+    busy = true;
+
+    const r = buyBtn.getBoundingClientRect();
+    const size = Math.max(r.width, r.height);
+    const rip = document.createElement("span");
+    rip.className = "ripple";
+    rip.style.width = rip.style.height = size + "px";
+    rip.style.left = (e.clientX - r.left - size / 2) + "px";
+    rip.style.top = (e.clientY - r.top - size / 2) + "px";
+    buyBtn.appendChild(rip);
+    setTimeout(() => rip.remove(), 800);
+
+    Sound.buy();
+    buyBtn.classList.add("loading");
+    buyLabel.style.opacity = "0";
+    buyLabel.style.transform = "translateY(6px)";
+
+    setTimeout(() => {
+        buyLabel.textContent = "Opening";
+        buyLabel.style.opacity = "1";
+        buyLabel.style.transform = "translateY(0)";
+    }, 220);
+
+    const typed = box.value.trim();
+    const message = typed ? GREETING + "\n\n" + typed : GREETING;
+    const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message);
+
+    setTimeout(() => {
+        window.location.href = url;
+        setTimeout(() => {
+            busy = false;
+            buyBtn.classList.remove("loading");
+            buyLabel.textContent = "Buy now";
+        }, 1500);
+    }, 900);
+});
+</script>
+
+</body>
+</html>
